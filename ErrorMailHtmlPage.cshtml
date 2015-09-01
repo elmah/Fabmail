@@ -1,0 +1,151 @@
+@using System
+@inherits Elmah.Fabmail.WebTemplateBase
+@{
+    //
+    // Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    //    http://www.apache.org/licenses/LICENSE-2.0
+    //
+    // Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+    //
+
+    // NB cast is not really required, but aids with intellisense!
+    var error = (Error) this.Error;
+    const string fontStyle = @"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: x-small;";
+}
+<html>
+    <head>
+        <title>Error: @error.Message</title>
+    </head>
+<body style="@fontStyle">
+    <p id="message" style="font-size: medium; color: maroon;">@error.Type: @error.Message</p>
+    @if (error.Time != DateTime.MinValue)
+    {
+        var tzs =
+            from id in Options.TimeZoneIds
+            where !string.IsNullOrEmpty(id)
+            select TimeZoneInfo.FindSystemTimeZoneById(id) into tz
+            where tz != null
+            let time = TimeZoneInfo.ConvertTime(new DateTimeOffset(error.Time.ToUniversalTime()), tz)
+            select new
+            {
+                Name = tz.SupportsDaylightSavingTime && tz.IsDaylightSavingTime(time) ? tz.DaylightName : tz.DaylightName,
+                Time = time.ToString("ddd, dd MMM yyyy HH:mm:ss zzzz"),
+            };
+
+        var tza = tzs.ToArray();
+        if (tza.Length == 0)
+        {
+            <p>Generated: @error.Time.ToUniversalTime().ToString("r")</p>
+        }
+        else if (tza.Length == 1)
+        {
+            <p>Generated: @tza[0].Time (@(tza[0].Name))</p>
+        }
+        else
+        {
+            <p>Generated:</p>
+            <ul>@foreach (var tz in tzs) { <li>@tz.Time (@(tz.Name))</li> }</ul>
+        }
+    }
+    @if (!string.IsNullOrEmpty(ErrorLogEntry?.Id))
+    {
+        var url = TryGetErrorDetailUrl();
+        <p>
+            This error was logged using <strong>@ErrorLogEntry.Log.Name</strong>
+            with the identifier
+            @* For correct formatting in output, avoid space within the following
+               if statement blocks, i.e. after { and before } tokens. *@
+            <strong id="log-id">@if (url != null) {<a href="@url.OriginalString">@ErrorLogEntry.Id</a>}
+                                         else {@ErrorLogEntry.Id}</strong>.
+</p>
+    }
+    @if (error.Detail.Length != 0)
+    {
+        // NOTE! DO NOT REMOVE Razor comments below designed to eliminate
+        // white space literals that can affect output and formatting.
+
+        <table
+            style="border-collapse: collapse; border-spacing: 0; border: none; width: 100%"
+            border="0" width="100%" cellpadding="10" cellspacing="0">
+            <tr style="background-color: #FFFFCC;">@*
+              *@<td valign="top" style="vertical-align: top" bgcolor="#FFFFCC">@*
+            *@<pre style="margin: 0; padding: 0"><code id="detail" style="font-size: x-small;">@Html(MarkupStackTrace(error.Detail))</code></pre>@*
+              *@</td>@*
+          *@</tr>
+        </table>
+    }
+    @foreach (var collection in
+        from collection in new[]
+        {
+            new
+            {
+                Id    = "vars",
+                Title = "Server Variables",
+                Items = error.ServerVariables,
+            }
+        }
+        let data = collection.Items
+        where data != null && data.Count > 0
+        let items = from i in Enumerable.Range(0, data.Count)
+                    let key = data.GetKey(i)
+                    where !Options.SkippedKeys.Contains(key)
+                    select new { Key = key, Value = data[i] } into e
+                    where Options.DontSkipEmptyKeys || !string.IsNullOrEmpty(e.Value)
+                    select e
+        select new
+        {
+            collection.Id,
+            collection.Title,
+            Items = items.OrderBy(e => e.Key, StringComparer.OrdinalIgnoreCase)
+                         .Select((e, i) => new { Pos = i + 1, e.Key, e.Value, })
+                         .ToArray(),
+        }
+        into collection
+        where collection.Items.Length > 0
+        select collection
+    )
+    {
+        const string tdStyle = "font-size: x-small; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 8px";
+        const string thStyle = tdStyle + "; text-align: left; font-weight: bold;";
+
+        <div id="@collection.Id">
+            <h1 style="font-size: small;">@collection.Title (@collection.Items.Length.ToString("N0"))</h1>
+            <table style="@fontStyle; border-collapse:collapse; border-spacing: 0; border: none; width: 100%"
+                border="0" cellspacing="0" cellpadding="0">
+                <tr valign="top" style="vertical-align: top;">
+                    <th style="@thStyle; text-align: right">#</th>
+                    <th style="@thStyle">Name</th>
+                    <th style="@thStyle">Value</th>
+                </tr>
+                @foreach (var item in collection.Items)
+                {
+                    var zebra = item.Pos % 2 == 1
+                              ? "background-color: #f9f9f9"
+                              : string.Empty;
+
+                    <tr valign="top" style="vertical-align: top; @zebra">
+                        <td style="@tdStyle; text-align: right">@item.Pos</td>
+                        <th style="@thStyle">@item.Key</th>
+                        <td style="@tdStyle">@item.Value</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    }
+    <p>
+        This e-mail was brought to you by
+        <a href="https://elmah.github.io/">ELMAH</a> (@(About<Error>.Version)),
+        <a href="https://github.com/elmah/Bootstrapper">ELMAH Bootstrapper</a> (@(About<Elmah.Bootstrapper.HttpModuleInitializingEventArgs>.Version))
+        &amp; ELMAH Fabmail (@(About<Elmah.Fabmail.ErrorTextFormatter>.Version)).
+        Copyright &copy; 2004, Atif Aziz. All rights reserved.
+        Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+    </p>
+</body>
+</html>
