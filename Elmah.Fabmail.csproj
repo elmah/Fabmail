@@ -67,7 +67,9 @@
     <Compile Include="App_Packages\StackTraceFormatter\StackTraceFormatter.cs" />
     <Compile Include="App_Packages\StackTraceParser\StackTraceParser.cs" />
     <Compile Include="ErrorMailHtmlPage.cs" />
+    <Compile Include="DiagnosticsCollectionSelectors.cs" />
     <Compile Include="ErrorMailOptions.cs" />
+    <Compile Include="Func.cs" />
     <Compile Include="Mannex.cs" />
     <Compile Include="MoreLinq\MoreEnumerable.Pairwise.cs" />
     <Compile Include="StringValues.cs" />

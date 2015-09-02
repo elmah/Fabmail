@@ -24,7 +24,7 @@ namespace Elmah.Fabmail
     {
         static readonly ErrorMailOptions DefaultOptions = new ErrorMailOptions
         {
-            SkippedKeys = { "ALL_HTTP", "ALL_RAW", },
+            ServerVariablesSelector = DiagnosticsCollectionSelectors.NotRegexKeys(new Regex("^ALL_(HTTP|RAW)$")),
             TimeZoneIds =
             {
                 "UTC",

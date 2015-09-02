@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 namespace Elmah.Fabmail
@@ -30,9 +30,9 @@ namespace Elmah.Fabmail
             _values = values;
         }
 
-        public static implicit operator StringValues(string value) => new StringValues(value);
+        public static implicit operator StringValues(string value)    => new StringValues(value);
         public static implicit operator StringValues(string[] values) => new StringValues(values);
-        public static implicit operator string (StringValues values) => values.GetStringValue();
+        public static implicit operator string (StringValues values)  => values.GetStringValue();
         public static implicit operator string[] (StringValues value) => value.GetArrayValue();
 
         public int Count => _values?.Length ?? (_value != null ? 1 : 0);

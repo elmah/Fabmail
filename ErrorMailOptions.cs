@@ -16,16 +16,18 @@
 
 namespace Elmah.Fabmail
 {
+    #region Imports
+
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Linq;
-    using Mannex.Collections.Generic;
+    using DiagnosticsCollectionSelector = System.Func<System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, StringValues>>, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, StringValues>>>;
+
+    #endregion
 
     public class ErrorMailOptions
     {
         public bool DontSkipEmptyKeys          { get; set; }
-        public ICollection<string> SkippedKeys { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         public string ErrorDetailUrlFormat     { get; set; }
 
         public ICollection<string> TimeZoneIds { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -36,15 +38,9 @@ namespace Elmah.Fabmail
             set { TimeZoneIds.Clear(); if (value != null) TimeZoneIds.Add(value); }
         }
 
-        public Func<NameValueCollection, IEnumerable<KeyValuePair<string, StringValues>>> ServerVariablesSelector { get; set; }
-        public Func<NameValueCollection, IEnumerable<KeyValuePair<string, StringValues>>> FormSelector            { get; set; }
-        public Func<NameValueCollection, IEnumerable<KeyValuePair<string, StringValues>>> QueryStringSelector     { get; set; }
-        public Func<NameValueCollection, IEnumerable<KeyValuePair<string, StringValues>>> CookiesSelector         { get; set; }
-
-        public Func<NameValueCollection, IEnumerable<KeyValuePair<string, StringValues>>>
-            DefaultDiagnosticsCollectionSelector = collection =>
-                from i in Enumerable.Range(0, collection.Count)
-                select collection.GetKey(i)
-                                 .AsKeyTo(new StringValues(collection.GetValues(i)));
+        public DiagnosticsCollectionSelector ServerVariablesSelector { get; set; }
+        public DiagnosticsCollectionSelector FormSelector            { get; set; }
+        public DiagnosticsCollectionSelector QueryStringSelector     { get; set; }
+        public DiagnosticsCollectionSelector CookiesSelector         { get; set; }
     }
 }

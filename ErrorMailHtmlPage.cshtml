@@ -86,17 +86,15 @@
         {
             new
             {
-                Id    = "vars",
-                Title = "Server Variables",
-                Items = error.ServerVariables,
+                Id     = "vars",
+                Title  = "Server Variables",
+                Items  = error.ServerVariables,
+                Filter = Options.ServerVariablesSelector,
             }
         }
         let data = collection.Items
         where data != null && data.Count > 0
-        let items = from i in Enumerable.Range(0, data.Count)
-                    let key = data.GetKey(i)
-                    where !Options.SkippedKeys.Contains(key)
-                    select new { Key = key, Value = data[i] } into e
+        let items = from e in (collection.Filter ?? DiagnosticsCollectionSelectors.PassThru)(data.AsEnumerable())
                     where Options.DontSkipEmptyKeys || !string.IsNullOrEmpty(e.Value)
                     select e
         select new

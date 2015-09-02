@@ -384,17 +384,15 @@ WriteLiteral("</tr>\r\n        </table>\r\n");
         {
             new
             {
-                Id    = "vars",
-                Title = "Server Variables",
-                Items = error.ServerVariables,
+                Id     = "vars",
+                Title  = "Server Variables",
+                Items  = error.ServerVariables,
+                Filter = Options.ServerVariablesSelector,
             }
         }
         let data = collection.Items
         where data != null && data.Count > 0
-        let items = from i in Enumerable.Range(0, data.Count)
-                    let key = data.GetKey(i)
-                    where !Options.SkippedKeys.Contains(key)
-                    select new { Key = key, Value = data[i] } into e
+        let items = from e in (collection.Filter ?? DiagnosticsCollectionSelectors.PassThru)(data.AsEnumerable())
                     where Options.DontSkipEmptyKeys || !string.IsNullOrEmpty(e.Value)
                     select e
         select new
@@ -421,7 +419,7 @@ WriteLiteral("        <div id=\"");
 
 
             
-            #line 118 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 116 "..\..\ErrorMailHtmlPage.cshtml"
             Write(collection.Id);
 
             
@@ -431,7 +429,7 @@ WriteLiteral("\">\r\n            <h1 style=\"font-size: small;\">");
 
 
             
-            #line 119 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 117 "..\..\ErrorMailHtmlPage.cshtml"
                                      Write(collection.Title);
 
             
@@ -441,7 +439,7 @@ WriteLiteral(" (");
 
 
             
-            #line 119 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 117 "..\..\ErrorMailHtmlPage.cshtml"
                                                         Write(collection.Items.Length.ToString("N0"));
 
             
@@ -451,7 +449,7 @@ WriteLiteral(")</h1>\r\n            <table style=\"");
 
 
             
-            #line 120 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 118 "..\..\ErrorMailHtmlPage.cshtml"
                      Write(fontStyle);
 
             
@@ -463,7 +461,7 @@ WriteLiteral("; border-collapse:collapse; border-spacing: 0; border: none; width
 
 
             
-            #line 123 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 121 "..\..\ErrorMailHtmlPage.cshtml"
                           Write(thStyle);
 
             
@@ -473,7 +471,7 @@ WriteLiteral("; text-align: right\">#</th>\r\n                    <th style=\"")
 
 
             
-            #line 124 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 122 "..\..\ErrorMailHtmlPage.cshtml"
                           Write(thStyle);
 
             
@@ -483,7 +481,7 @@ WriteLiteral("\">Name</th>\r\n                    <th style=\"");
 
 
             
-            #line 125 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 123 "..\..\ErrorMailHtmlPage.cshtml"
                           Write(thStyle);
 
             
@@ -493,7 +491,7 @@ WriteLiteral("\">Value</th>\r\n                </tr>\r\n");
 
 
             
-            #line 127 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 125 "..\..\ErrorMailHtmlPage.cshtml"
                  foreach (var item in collection.Items)
                 {
                     var zebra = item.Pos % 2 == 1
@@ -508,7 +506,7 @@ WriteLiteral("                    <tr valign=\"top\" style=\"vertical-align: top
 
 
             
-            #line 133 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 131 "..\..\ErrorMailHtmlPage.cshtml"
                                                             Write(zebra);
 
             
@@ -518,7 +516,7 @@ WriteLiteral("\">\r\n                        <td style=\"");
 
 
             
-            #line 134 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 132 "..\..\ErrorMailHtmlPage.cshtml"
                               Write(tdStyle);
 
             
@@ -528,7 +526,7 @@ WriteLiteral("; text-align: right\">");
 
 
             
-            #line 134 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 132 "..\..\ErrorMailHtmlPage.cshtml"
                                                            Write(item.Pos);
 
             
@@ -538,7 +536,7 @@ WriteLiteral("</td>\r\n                        <th style=\"");
 
 
             
-            #line 135 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 133 "..\..\ErrorMailHtmlPage.cshtml"
                               Write(thStyle);
 
             
@@ -548,7 +546,7 @@ WriteLiteral("\">");
 
 
             
-            #line 135 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 133 "..\..\ErrorMailHtmlPage.cshtml"
                                         Write(item.Key);
 
             
@@ -558,7 +556,7 @@ WriteLiteral("</th>\r\n                        <td style=\"");
 
 
             
-            #line 136 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 134 "..\..\ErrorMailHtmlPage.cshtml"
                               Write(tdStyle);
 
             
@@ -568,7 +566,7 @@ WriteLiteral("\">");
 
 
             
-            #line 136 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 134 "..\..\ErrorMailHtmlPage.cshtml"
                                         Write(item.Value);
 
             
@@ -578,7 +576,7 @@ WriteLiteral("</td>\r\n                    </tr>\r\n");
 
 
             
-            #line 138 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 136 "..\..\ErrorMailHtmlPage.cshtml"
                 }
 
             
@@ -588,7 +586,7 @@ WriteLiteral("            </table>\r\n        </div>\r\n");
 
 
             
-            #line 141 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 139 "..\..\ErrorMailHtmlPage.cshtml"
     }
 
             
@@ -599,7 +597,7 @@ WriteLiteral("    <p>\r\n        This e-mail was brought to you by\r\n        <a
 
 
             
-            #line 144 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 142 "..\..\ErrorMailHtmlPage.cshtml"
                                                   Write(About<Error>.Version);
 
             
@@ -610,7 +608,7 @@ WriteLiteral("),\r\n        <a href=\"https://github.com/elmah/Bootstrapper\">EL
 
 
             
-            #line 145 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 143 "..\..\ErrorMailHtmlPage.cshtml"
                                                                             Write(About<Elmah.Bootstrapper.HttpModuleInitializingEventArgs>.Version);
 
             
@@ -620,7 +618,7 @@ WriteLiteral(")\r\n        &amp; ELMAH Fabmail (");
 
 
             
-            #line 146 "..\..\ErrorMailHtmlPage.cshtml"
+            #line 144 "..\..\ErrorMailHtmlPage.cshtml"
                          Write(About<Elmah.Fabmail.ErrorTextFormatter>.Version);
 
             
