@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2568026A-8946-4597-B092-79375FEFD9A7}"
 	ProjectSection(SolutionItems) = preProject
 		build.cmd = build.cmd
+		COPYING.txt = COPYING.txt
 	EndProjectSection
 EndProject
 Global
